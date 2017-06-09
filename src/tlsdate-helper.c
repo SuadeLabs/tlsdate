@@ -373,8 +373,9 @@ xfree (void *ptr)
 void
 openssl_time_callback (const SSL* ssl, int where, int ret)
 {
+  int state = SSL_state(ssl);
   if (where == SSL_CB_CONNECT_LOOP &&
-      (ssl->state == SSL3_ST_CR_SRVR_HELLO_A || ssl->state == SSL3_ST_CR_SRVR_HELLO_B))
+      (state == SSL3_ST_CR_SRVR_HELLO_A || state == SSL3_ST_CR_SRVR_HELLO_B))
   {
     // XXX TODO: If we want to trust the remote system for time,
     // can we just read that time out of the remote system and if the
@@ -1129,15 +1130,7 @@ run_ssl (uint32_t *time_map, int time_is_an_illusion, int http)
   SSL_library_init();
 
   ctx = NULL;
-  if (0 == strcmp("sslv23", protocol))
-  {
-    verb ("V: using SSLv23_client_method()");
-    ctx = SSL_CTX_new(SSLv23_client_method());
-  } else if (0 == strcmp("sslv3", protocol))
-  {
-    verb ("V: using SSLv3_client_method()");
-    ctx = SSL_CTX_new(SSLv3_client_method());
-  } else if (0 == strcmp("tlsv1", protocol))
+  if (0 == strcmp("tlsv1", protocol))
   {
     verb ("V: using TLSv1_client_method()");
     ctx = SSL_CTX_new(TLSv1_client_method());
